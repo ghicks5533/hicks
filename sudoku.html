@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sudoku Solver — Answer Set Programming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+      line-height: 1.6;
+      background-color: #fafafa;
+    }
+
+    h1, h2 {
+      margin-top: 40px;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    td {
+      width: 35px;
+      height: 35px;
+      text-align: center;
+      border: 1px solid #999;
+      font-weight: bold;
+    }
+
+    /* thicker borders for 3x3 grids */
+    tr:nth-child(3n) td {
+      border-bottom: 2px solid #000;
+    }
+    td:nth-child(3n) {
+      border-right: 2px solid #000;
+    }
+
+    .controls button {
+      margin-right: 10px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    pre {
+      background: #eee;
+      padding: 15px;
+      overflow-x: auto;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Sudoku Solver using Answer Set Programming</h1>
+
+<p>
+This project solves a 9×9 Sudoku puzzle using <strong>Answer Set Programming (ASP)</strong>
+with the <strong>DLV solver</strong>. Rather than writing a procedural algorithm,
+the puzzle is modeled using logical rules and constraints.
+</p>
+
+<hr />
+
+<h2>Initial Puzzle</h2>
+
+<table>
+  <tr><td>4</td><td>5</td><td>7</td><td></td><td></td><td>8</td><td></td><td>2</td><td></td></tr>
+  <tr><td></td><td>3</td><td></td><td>5</td><td>2</td><td></td><td></td><td>9</td><td>4</td></tr>
+  <tr><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+
+  <tr><td></td><td>7</td><td>1</td><td></td><td></td><td>3</td><td></td><td></td><td></td></tr>
+  <tr><td>9</td><td>6</td><td></td><td></td><td>8</td><td></td><td></td><td>4</td><td>1</td></tr>
+  <tr><td></td><td></td><td></td><td>6</td><td></td><td></td><td>3</td><td>5</td><td></td></tr>
+
+  <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>3</td></tr>
+  <tr><td>6</td><td>2</td><td></td><td></td><td>1</td><td>4</td><td></td><td>7</td><td></td></tr>
+  <tr><td></td><td>8</td><td></td><td>7</td><td></td><td></td><td>4</td><td>1</td><td>5</td></tr>
+</table>
+
+<hr />
+
+<h2>Logic & Constraints</h2>
+
+<div class="controls">
+  <button onclick="toggle('constraints')">Show / Hide Constraints</button>
+</div>
+
+<div id="constraints" class="hidden">
+<pre>
+% Each cell has exactly one number
+{ place(R, C, N) : N = 1..9 } = 1 :- R = 1..9, C = 1..9.
+
+% No duplicate numbers in any row
+:- place(R, C1, N), place(R, C2, N), C1 != C2.
+
+% No duplicate numbers in any column
+:- place(R1, C, N), place(R2, C, N), R1 != R2.
+
+% No duplicate numbers in any 3x3 subgrid
+:- place(R1, C1, N), place(R2, C2, N),
+   (R1+2)/3 = (R2+2)/3,
+   (C1+2)/3 = (C2+2)/3,
+   (R1, C1) != (R2, C2).
+</pre>
+
+<p>
+These constraints describe what a <em>valid</em> Sudoku solution looks like.
+The DLV solver computes an answer set that satisfies all of them simultaneously.
+</p>
+</div>
+
+<hr />
+
+<h2>Solution</h2>
+
+<div class="controls">
+  <button onclick="toggle('solution')">Reveal Solution</button>
+</div>
+
+<div id="solution" class="hidden">
+<table>
+  <tr><td>4</td><td>5</td><td>7</td><td>9</td><td>6</td><td>8</td><td>1</td><td>2</td><td>3</td></tr>
+  <tr><td>1</td><td>3</td><td>6</td><td>5</td><td>2</td><td>7</td><td>8</td><td>9</td><td>4</td></tr>
+  <tr><td>2</td><td>9</td><td>8</td><td>1</td><td>4</td><td>3</td><td>5</td><td>6</td><td>7</td></tr>
+
+  <tr><td>8</td><td>7</td><td>1</td><td>4</td><td>5</td><td>3</td><td>9</td><td>6</td><td>2</td></tr>
+  <tr><td>9</td><td>6</td><td>3</td><td>2</td><td>8</td><td>5</td><td>7</td><td>4</td><td>1</td></tr>
+  <tr><td>5</td><td>4</td><td>2</td><td>6</td><td>7</td><td>9</td><td>3</td><td>5</td><td>8</td></tr>
+
+  <tr><td>7</td><td>1</td><td>4</td><td>8</td><td>9</td><td>6</td><td>2</td><td>5</td><td>3</td></tr>
+  <tr><td>6</td><td>2</td><td>5</td><td>3</td><td>1</td><td>4</td><td>8</td><td>7</td><td>9</td></tr>
+  <tr><td>3</td><td>8</td><td>9</td><td>7</td><td>5</td><td>2</td><td>4</td><td>1</td><td>5</td></tr>
+</table>
+
+<p>
+This solution corresponds to one valid answer set produced by the DLV solver.
+</p>
+</div>
+
+<script>
+  function toggle(id) {
+    document.getElementById(id).classList.toggle("hidden");
+  }
+</script>
+
+</body>
+</html>
