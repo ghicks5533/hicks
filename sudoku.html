@@ -91,11 +91,7 @@ the puzzle is modeled using logical rules and constraints.
 
 <h2>Logic & Constraints</h2>
 
-<div class="controls">
-  <button onclick="toggle('constraints')">Show / Hide Constraints</button>
-</div>
-
-<div id="constraints" class="hidden">
+<div id="constraints">
 <pre>
 % Each cell has exactly one number
 { place(R, C, N) : N = 1..9 } = 1 :- R = 1..9, C = 1..9.
